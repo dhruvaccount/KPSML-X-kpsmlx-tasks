@@ -38,7 +38,7 @@ def _stub(name, **attrs):
     return mod
 
 
-def build_module_under_test():
+def build_module_under_test(suffix=''):
     """Stub the heavy imports, then import the real status.py."""
     state = SimpleNamespace(download_dict={}, download_dict_lock=asyncio.Lock())
 
@@ -48,7 +48,7 @@ def build_module_under_test():
           bot_cache={}, status_reply_dict_lock=asyncio.Lock(),
           download_dict=state.download_dict, download_dict_lock=state.download_dict_lock,
           botStartTime=0, Interval=[], bot=fake_bot_client, bot_name='testbot',
-          CMD_SUFFIX='', config_dict={'SHOW_EXTRA_CMDS': False, 'STATUS_UPDATE_INTERVAL': 10,
+          CMD_SUFFIX=suffix, config_dict={'SHOW_EXTRA_CMDS': False, 'STATUS_UPDATE_INTERVAL': 10,
                                       'DOWNLOAD_DIR': '/tmp'})
 
     # --- third-party packages ---------------------------------------------
@@ -195,11 +195,11 @@ class RegistrationTests(unittest.TestCase):
         (cls.status, cls.state, cls.cmds_mod,
          cls.handler_cls, cls.command_fn) = build_module_under_test()
 
-    def test_command_name_is_tasks(self):
-        self.assertEqual(self.cmds_mod.BotCommands.TasksCommand, 'tasks')
+    def test_command_name_without_suffix(self):
+        self.assertEqual(self.cmds_mod.BotCommands.TasksCommand, ['tasks'])
 
     def test_handler_registered_for_tasks_command(self):
-        self.command_fn.assert_any_call('tasks')
+        self.command_fn.assert_any_call(['tasks'])
         handlers = [c.args[0] for c in self.handler_cls.call_args_list]
         self.assertIn(self.status.tasks_count, handlers)
 
@@ -211,6 +211,27 @@ class RegistrationTests(unittest.TestCase):
 
     def test_existing_status_command_untouched(self):
         self.assertEqual(self.cmds_mod.BotCommands.StatusCommand, ['status', 's', 'statusall'])
+
+
+class SuffixTests(unittest.TestCase):
+    """Multi-bot setups use CMD_SUFFIX (e.g. /stats3, /log3) - /tasks3 must work too."""
+
+    def test_suffix_3_gives_both_tasks_and_tasks3(self):
+        _, _, cmds_mod, handler_cls, command_fn = build_module_under_test(suffix='3')
+        self.assertEqual(cmds_mod.BotCommands.TasksCommand, ['tasks', 'tasks3'])
+        command_fn.assert_any_call(['tasks', 'tasks3'])
+
+    def test_menu_and_help_use_the_suffixed_name(self):
+        _, _, cmds_mod, _, _ = build_module_under_test(suffix='3')
+        self.assertEqual(cmds_mod.BotCommands.TasksCommand[-1], 'tasks3')
+
+    def test_suffix_3_does_not_collide_with_other_commands(self):
+        _, _, cmds_mod, _, _ = build_module_under_test(suffix='3')
+        flat = []
+        for v in vars(cmds_mod.BotCommands).values():
+            flat.extend(v if isinstance(v, list) else [v])
+        self.assertEqual(flat.count('tasks3'), 1)
+        self.assertEqual(flat.count('tasks'), 1)
 
 
 class IntegrationWiringTests(unittest.TestCase):

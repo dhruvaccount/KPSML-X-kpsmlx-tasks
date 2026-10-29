@@ -25,7 +25,7 @@ class _BotCommands:
         self.ListCommand = f'list{CMD_SUFFIX}'
         self.SearchCommand = f'search{CMD_SUFFIX}'
         self.StatusCommand = [f'status{CMD_SUFFIX}', f's{CMD_SUFFIX}', 'statusall']
-        self.TasksCommand = 'tasks'
+        self.TasksCommand = list(dict.fromkeys(['tasks', f'tasks{CMD_SUFFIX}']))  # /tasks = all bots (like statusall), /tasks<suffix> = this bot only
         self.UsersCommand = f'users{CMD_SUFFIX}'
         self.AuthorizeCommand = [f'authorize{CMD_SUFFIX}', f'a{CMD_SUFFIX}']
         self.UnAuthorizeCommand = [f'unauthorize{CMD_SUFFIX}', f'ua{CMD_SUFFIX}']

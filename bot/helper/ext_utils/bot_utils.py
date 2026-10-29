@@ -718,7 +718,7 @@ async def set_commands(client):
                 f'or /{BotCommands.StatusCommand[1]} Get Bot All Status Stats Message',
             ),
             BotCommand(
-                BotCommands.TasksCommand,
+                BotCommands.TasksCommand[-1],
                 'Show total Bot Tasks & your Tasks count',
             ),
             BotCommand(

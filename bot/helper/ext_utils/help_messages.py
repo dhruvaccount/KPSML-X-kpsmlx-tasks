@@ -354,7 +354,7 @@ f'''⌬ <b><i>Users Commands!</i></b>
 
 <b>Bot Stats:</b>
 ┠ /{BotCommands.StatusCommand[0]} or /{BotCommands.StatusCommand[1]}: Shows a status page of all active tasks.
-┠ /{BotCommands.TasksCommand}: Show total Bot Tasks & your own Tasks count.
+┠ /{BotCommands.TasksCommand[-1]}: Show total Bot Tasks & your own Tasks count.
 ┠ /{BotCommands.StatsCommand[0]} or /{BotCommands.StatsCommand[1]}: Show Server detailed stats.
 ┖ /{BotCommands.PingCommand[0]} or /{BotCommands.PingCommand[1]}: Check how long it takes to Ping the Bot.
 
